@@ -2,11 +2,15 @@
 #
 # testsegy.py
 #
-import struct
+#import struct;
+
 
 import segypy
 
-filename='ld0057_file_00095.sgy';
+
+#%%
+
+filename='ld0077_file_0126.sgy';
 #filename='mini.sgy'
 #filename='data_IEEE.segy';
 #filename='data_IBM_REV1.segy';
@@ -18,11 +22,16 @@ filename='ld0057_file_00095.sgy';
 # Set verbose level
 segypy.verbose=1;
 
-# Read Segy File
-Data,SH,STH=segypy.readSegy(filename);
+
+SH = segypy.getSegyHeader(filename);
+
+
+#%% Read Segy File
+[Data,SH,STH]=segypy.readSegy(filename);
 
 
 
+#%%
 exit
 
 
