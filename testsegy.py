@@ -25,7 +25,7 @@ segypy.verbose=11;
 
 
 SH = segypy.getSegyHeader(filename);
-
+print(SH)
 
 #%% Read Segy File
 [Data,SH,STH]=segypy.readSegy(filename);

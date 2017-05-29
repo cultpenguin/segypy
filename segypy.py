@@ -912,7 +912,7 @@ def getValue(data,index,ctype='l',endian='>',number=1):
     print("number="+str(number))
     print("index, index_end = "+str(index)+","+str(index_end))
 
-    if (ctype=='iibm'):
+    if (ctype=='ibm'):
         # ASSUME IBM FLOAT DATA
         Value = range(int(number))        
         for i in arange(number):
