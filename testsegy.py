@@ -11,6 +11,7 @@ import segypy
 #%%
 
 filename='ld0077_file_0126.sgy';
+filename='shotgather.sgy';
 #filename='mini.sgy'
 #filename='data_IEEE.segy';
 #filename='data_IBM_REV1.segy';
