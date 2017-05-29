@@ -20,7 +20,7 @@ filename='ld0077_file_0126.sgy';
 #filename='data_4byteINT.segy';
 
 # Set verbose level
-segypy.verbose=1;
+segypy.verbose=11;
 
 
 SH = segypy.getSegyHeader(filename);

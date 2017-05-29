@@ -553,6 +553,9 @@ def readSegy(filename,endian='>'):  # modified by A Squelch
     index=3600;
     nd=(filesize-3600)/bps 
     
+    printverbose("bps=%5d" % bps)
+    printverbose("nd=%5d" % nd)
+       
     # modified by A Squelch
     # this portion replaced by call to new function: readSegyData
     Data,SH,SegyTraceHeaders = readSegyData(data,SH,nd,bps,index,endian)
@@ -602,6 +605,8 @@ def readSegyData(data,SH,nd,bps,index,endian='>'):  # added by A Squelch
 
     printverbose("readSegyData : SEG-Y revision = "+str(revision),1)
     printverbose("readSegyData : DataSampleFormat="+str(dsf)+"("+DataDescr+")",1)
+
+    SH["DataSampleFormat"]==1
 
     if (SH["DataSampleFormat"]==1):
         printverbose("readSegyData : Assuming DSF=1, IBM FLOATS",2)
@@ -677,10 +682,11 @@ def getSegyHeader(filename,endian='>'):  # modified by A Squelch
     for key in SH_def.keys(): 
         pos=SH_def[key]["pos"]
         format=SH_def[key]["type"]
-
+        
+        
         SegyHeader[key],index = getValue(data,pos,format,endian);    
 
-        txt =  str(pos) + " " + str(format) + "  Reading " + key +"="+str(SegyHeader[key])
+        txt =  str(pos) + " " + str(format) + "  key='" + key +"'="+str(SegyHeader[key])
         printverbose(txt,10)
     
     # SET NUMBER OF BYTES PER DATA SAMPLE
@@ -893,25 +899,31 @@ def getValue(data,index,ctype='l',endian='>',number=1):
         ctype='f'
     elif (ctype=='ibm'):
         size=l_float
+        ctype='f'
     else:
         printverbose('Bad Ctype : ' +ctype,-1)
 
 
-    cformat=endian + ctype*number
-
-    printverbose('getValue : cformat :  ' + cformat,40)
     
     index_end=index+size*number
 
-    if (ctype=='ibm'):
+    
+
+    print("number="+str(number))
+    print("index, index_end = "+str(index)+","+str(index_end))
+
+    if (ctype=='iibm'):
         # ASSUME IBM FLOAT DATA
-        Value = range(number)        
+        Value = range(int(number))        
         for i in arange(number):
             index_ibm=i*4+index
             Value[i] = ibm2ieee2(data[index_ibm:index_ibm+4])
         # this resturn an array as opposed to a tuple    
     else:
         # ALL OTHER TYPES OF DATA
+        cformat=endian + ctype*number
+        printverbose("getValue : cformat : '" + cformat + "'",8)
+    
         Value=struct.unpack(cformat, data[index:index_end])
 
     if (ctype=='B'):
