@@ -47,7 +47,9 @@ verbose=1;
 
 l_int = struct.calcsize('i')
 l_uint = struct.calcsize('I')
-l_long = struct.calcsize('l')
+l_long = 4;
+#Next line gives wrong result on Linux!! (gives 8 instead of 4)
+# l_long = struct.calcsize('l')
 l_ulong = struct.calcsize('L')
 l_short = struct.calcsize('h')
 l_ushort = struct.calcsize('H')
@@ -354,19 +356,19 @@ def imageSegy(Data):
     imageSegy(Data)
     Image segy Data
     """
-    import pylab
-    pylab.imshow(Data)
-    pylab.title('pymat test')
-    pylab.grid(True)
-    pylab.show()
+    import matplotlib.pylab as plt
+    plt.imshow(Data)
+    plt.title('pymat test')
+    plt.grid(True)
+    plt.show()
 
 #%%
 def wiggle(Data,SH,skipt=1,maxval=8,lwidth=.1):
     """
     wiggle(Data,SH)
     """
-    import pylab
-        
+    import matplotlib.pylab as plt
+       
     t = range(SH['ns'])
 #     t = range(SH['ns'])*SH['dt']/1000000;
 
@@ -378,15 +380,15 @@ def wiggle(Data,SH,skipt=1,maxval=8,lwidth=.1):
         trace=Data[:,i]
         trace[0]=0
         trace[SH['ns']-1]=0    
-        pylab.plot(i+trace/maxval,t,color='black',linewidth=lwidth)
+        plt.plot(i+trace/maxval,t,color='black',linewidth=lwidth)
         for a in range(len(trace)):
             if (trace[a]<0):
                 trace[a]=0;
         # pylab.fill(i+Data[:,i]/maxval,t,color='k',facecolor='g')
-        pylab.fill(i+Data[:,i]/maxval,t,'k',linewidth=0)
-    pylab.title(SH['filename'])
-    pylab.grid(True)
-    pylab.show()
+        plt.fill(i+Data[:,i]/maxval,t,'k',linewidth=0)
+    plt.title(SH['filename'])
+    plt.grid(True)
+    plt.show()
 
 #%%
 def getDefaultSegyHeader(ntraces=100,ns=100):
@@ -551,7 +553,7 @@ def readSegy(filename,endian='>'):  # modified by A Squelch
 
     # GET TRACE
     index=3600;
-    nd=(filesize-3600)/bps 
+    nd=int((filesize-3600)/bps) 
     
     printverbose("bps=%5d" % bps)
     printverbose("nd=%5d" % nd)
@@ -575,7 +577,7 @@ def readSegyData(data,SH,nd,bps,index,endian='>'):  # added by A Squelch
     """
 
     # Calulate number of dummy samples needed to account for Trace Headers
-    ndummy_samples=240/bps
+    ndummy_samples=int(240/bps)
     printverbose("readSegyData : ndummy_samples="+str(ndummy_samples),6)
 
     # READ ALL SEGY TRACE HEADRES
@@ -605,8 +607,6 @@ def readSegyData(data,SH,nd,bps,index,endian='>'):  # added by A Squelch
 
     printverbose("readSegyData : SEG-Y revision = "+str(revision),1)
     printverbose("readSegyData : DataSampleFormat="+str(dsf)+"("+DataDescr+")",1)
-
-    SH["DataSampleFormat"]==1
 
     if (SH["DataSampleFormat"]==1):
         printverbose("readSegyData : Assuming DSF=1, IBM FLOATS",2)
@@ -684,25 +684,15 @@ def getSegyHeader(filename,endian='>'):  # modified by A Squelch
         j=j+1;
         pos=SH_def[key]["pos"]
         format=SH_def[key]["type"]
-        txt = "i=%3d, pos=%5d, format=%2s, key=%15s" % (j,pos,format,key);
-        printverbose(txt,10)
-    
-    
-    j=0;
-    for key in SH_def.keys(): 
-        j=j+1;
-        pos=SH_def[key]["pos"]
-        format=SH_def[key]["type"]
         
         txt = "i=%3d, pos=%5d, format=%2s, key=%s" % (j,pos,format,key);
         printverbose(txt,10)
     
         SegyHeader[key],index = getValue(data,pos,format,endian);    
 
-        txt = "%s = %f" % (key,SegyHeader[key])    
-        printverbose(txt,10)
+        txt = "SegyHeader[%s] = %f" % (key,SegyHeader[key])    
+        printverbose(txt,2)
     
-        txt =  str(pos) + " " + str(format) + "  key='" + key +"'="+str(SegyHeader[key])
         
     # SET NUMBER OF BYTES PER DATA SAMPLE
     bps=getBytePerSample(SegyHeader)
@@ -914,30 +904,31 @@ def getValue(data,index,ctype='l',endian='>',number=1):
         ctype='f'
     elif (ctype=='ibm'):
         size=l_float
-        ctype='f'
+        ctype='ibm'
     else:
         printverbose('Bad Ctype : ' +ctype,-1)
-
 
     
     index_end=index+size*number
 
-    
-
-    print("number="+str(number))
-    print("index, index_end = "+str(index)+","+str(index_end))
+    printverbose("index=%d, number=%d, size=%d, ctype=%s" % (index, number, size,ctype) ,8);
+    printverbose("index, index_end = "+str(index)+","+str(index_end),9)
 
     if (ctype=='ibm'):
         # ASSUME IBM FLOAT DATA
-        Value = range(int(number))        
+        Value = list(range(int(number)))        
         for i in arange(number):
-            index_ibm=i*4+index
-            Value[i] = ibm2ieee2(data[index_ibm:index_ibm+4])
+            index_ibm_start=i*4+index
+            index_ibm_end = index_ibm_start+4;
+            ibm_val = ibm2ieee2(data[index_ibm_start:index_ibm_end])
+            Value[i] = ibm_val;
         # this resturn an array as opposed to a tuple    
     else:
         # ALL OTHER TYPES OF DATA
+        cformat = 'f'*number
         cformat=endian + ctype*number
-        printverbose("getValue : cformat : '" + cformat + "'",8)
+        
+        printverbose("getValue : cformat : '" + cformat + "'",11)
     
         Value=struct.unpack(cformat, data[index:index_end])
 

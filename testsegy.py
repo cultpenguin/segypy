@@ -6,11 +6,11 @@
 
 
 import segypy
-
+import matplotlib.pylab as plt
 
 #%%
 
-filename='ld0077_file_0126.sgy';
+#filename='ld0077_file_0126.sgy';
 filename='shotgather.sgy';
 #filename='mini.sgy'
 #filename='data_IEEE.segy';
@@ -21,49 +21,19 @@ filename='shotgather.sgy';
 #filename='data_4byteINT.segy';
 
 # Set verbose level
-segypy.verbose=11;
+segypy.verbose=1;
 
 
-SH = segypy.getSegyHeader(filename);
-print(SH)
+#SH = segypy.getSegyHeader(filename);
+
 
 #%% Read Segy File
 [Data,SH,STH]=segypy.readSegy(filename);
 
-
-
 #%%
-exit
+plt.pcolor(Data)
+plt.show();
 
+#
+#segypy.wiggle(Data,SH);
 
-filename_out='testout.segy';
-SH['DataSampleFormat']=5;
-SH['SegyFormatRevisionNumber']=100;
-segypy.writeSegyStructure(filename_out,Data,SH,STH);
-
-segypy.wiggle(Data,SH,2,.1,.1)
-
-f_ieee='data_IEEE.segy';
-f_ibm='data_IBM_REV1.segy';
-d_ieee,SH,STH=segypy.readSegy(f_ieee);
-d_ibm,SH,STH=segypy.readSegy(f_ibm);
-
-
-import pylab
-
-
-#imshow(Data)
-pylab.figure(1)
-pylab.imshow(d_ieee)
-pylab.title('ieee')
-pylab.show()
-
-pylab.figure(2)
-pylab.imshow(d_ibm)
-pylab.title('IBM')
-pylab.show()
-
-pylab.figure(3)
-pylab.imshow(Data)
-pylab.title('TEST')
-pylab.show()
