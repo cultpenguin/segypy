@@ -678,17 +678,32 @@ def getSegyHeader(filename,endian='>'):  # modified by A Squelch
     data = open(filename,'rb').read()
 
     SegyHeader = {'filename': filename}
-     
+    
+    j=0;
     for key in SH_def.keys(): 
+        j=j+1;
+        pos=SH_def[key]["pos"]
+        format=SH_def[key]["type"]
+        txt = "i=%3d, pos=%5d, format=%2s, key=%15s" % (j,pos,format,key);
+        printverbose(txt,10)
+    
+    
+    j=0;
+    for key in SH_def.keys(): 
+        j=j+1;
         pos=SH_def[key]["pos"]
         format=SH_def[key]["type"]
         
-        
-        SegyHeader[key],index = getValue(data,pos,format,endian);    
-
-        txt =  str(pos) + " " + str(format) + "  key='" + key +"'="+str(SegyHeader[key])
+        txt = "i=%3d, pos=%5d, format=%2s, key=%s" % (j,pos,format,key);
         printverbose(txt,10)
     
+        SegyHeader[key],index = getValue(data,pos,format,endian);    
+
+        txt = "%s = %f" % (key,SegyHeader[key])    
+        printverbose(txt,10)
+    
+        txt =  str(pos) + " " + str(format) + "  key='" + key +"'="+str(SegyHeader[key])
+        
     # SET NUMBER OF BYTES PER DATA SAMPLE
     bps=getBytePerSample(SegyHeader)
 
