@@ -24,7 +24,7 @@ filename='shotgather.sgy';
 segypy.verbose=1;
 
 
-#SH = segypy.getSegyHeader(filename);
+SH = segypy.getSegyHeader(filename);
 
 
 #%% Read Segy File
