@@ -26,15 +26,11 @@ segy.verbose         : Amount of verbose information to the screen
 # - Pete Forman 
 #
 # modified by Andrew Squelch 2007 : sub-version 0.3.1
-
+from __future__ import division
+from __future__ import print_function
 
 import struct, sys  # modified by A Squelch
 
-from numpy import transpose
-from numpy import resize
-from numpy import reshape
-from numpy import zeros
-from numpy import arange
 import numpy as np
 
 
@@ -350,44 +346,88 @@ STH_def["UnassignedInt2"] = {"pos": 236, "type": "int32"}  # 'int32');  %236
 ##############
 # %% FUNCTIONS
 
-def imageSegy(Data):
+def image(Data,  SH={}, maxval=-1):
     """
-    imageSegy(Data)
+    image(Data,SH,maxval)
     Image segy Data
     """
     import matplotlib.pylab as plt
-    plt.imshow(Data)
-    plt.title('pymat test')
-    plt.grid(True)
+
+    if (maxval<=0):
+        Dmax = np.max(Data)
+        maxval = -1*maxval*Dmax
+
+    if 'time' in SH:
+        t = SH['time']
+        ntraces = SH['ntraces']
+        ns = SH['ns']
+    else:
+        ns = Data.shape[0]
+        t = np.arange(ns)
+        ntraces = Data.shape[1]
+    x = np.arange(ntraces)+1
+
+    print(maxval)
+    plt.pcolor(x, t, Data, vmin=-1*maxval, vmax=maxval)
+    plt.colorbar()
+    plt.axis('normal')
+    plt.xlabel('Trace number')
+    if 'time' in SH:
+        plt.ylabel('Time (ms)')
+    else:
+        plt.ylabel('Sample number')
+    if 'filename' in SH:
+        plt.title(SH['filename'])
+    plt.gca().invert_yaxis()
+
+    #plt.grid(True)
     plt.show()
 
 
 # %%
-def wiggle(Data, SH, skipt=1, maxval=8, lwidth=.1):
+def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1):
     """
     wiggle(Data,SH)
     """
     import matplotlib.pylab as plt
+    import numpy as np
 
-    t = range(SH['ns'])
-    #     t = range(SH['ns'])*SH['dt']/1000000;
+    if 'time' in SH:
+        t = SH['time']
+        ntraces = SH['ntraces']
+        ns = SH['ns']
+    else:
+        ns=Data.shape[0]
+        t=np.arange(ns)
+        ntraces = Data.shape[1]
 
-    for i in range(0, SH['ntraces'], skipt):
-        #        trace=zeros(SH['ns']+2)
-        #        dtrace=Data[:,i]
-        #        trace[1:SH['ns']]=Data[:,i]
-        #        trace[SH['ns']+1]=0
+
+    if (maxval<=0):
+        Dmax = np.max(Data)
+        maxval = -1*maxval*Dmax
+
+    for i in range(0, ntraces, skipt):
         trace = Data[:, i]
         trace[0] = 0
-        trace[SH['ns'] - 1] = 0
+        trace[ns - 1] = 0
         plt.plot(i + trace / maxval, t, color='black', linewidth=lwidth)
         for a in range(len(trace)):
             if (trace[a] < 0):
                 trace[a] = 0;
         # pylab.fill(i+Data[:,i]/maxval,t,color='k',facecolor='g')
         plt.fill(i + Data[:, i] / maxval, t, 'k', linewidth=0)
-    plt.title(SH['filename'])
+
     plt.grid(True)
+    plt.gca().invert_yaxis()
+
+    plt.xlabel('Trace number')
+    if 'time' in SH:
+        plt.ylabel('Time (ms)')
+    else:
+        plt.ylabel('Sample number')
+    if 'filename' in SH:
+        plt.title(SH['filename'])
+    plt.axes().set_xlim(-1, ntraces)
     plt.show()
 
 
@@ -429,7 +469,7 @@ def getDefaultSegyTraceHeaders(ntraces=100, ns=100, dt=1000):
             val = tmpkey['def']
         else:
             val = 0
-        STH[key] = zeros(ntraces)
+        STH[key] = np.zeros(ntraces)
 
     for a in range(ntraces):
         STH["TraceSequenceLine"][a] = a + 1
@@ -457,7 +497,7 @@ def getSegyTraceHeader(SH, THN='cdp', data='none', endian='>'):  # modified by A
     THpos = STH_def[THN]["pos"]
     THformat = STH_def[THN]["type"]
     ntraces = SH["ntraces"]
-    thv = zeros(ntraces)
+    thv = np.zeros(ntraces)
     for itrace in range(1, ntraces + 1, 1):
         i = itrace
 
@@ -584,7 +624,7 @@ def readSegyData(data, SH, nd, bps, index, endian='>'):  # added by A Squelch
     printverbose("readSegyData : Reading segy data", 1)
 
     # READ ALL DATA EXCEPT FOR SEGY HEADER
-    # Data = zeros((SH['ns'],ntraces))
+    # Data = np.zeros((SH['ns'],ntraces))
 
     revision = SH["SegyFormatRevisionNumber"]
     if (revision == 100):
@@ -627,16 +667,16 @@ def readSegyData(data, SH, nd, bps, index, endian='>'):  # added by A Squelch
 
     printverbose("readSegyData : - reshaping", 2)
     printverbose(" ns=" + str(SH['ns']),-2)
-    Data = reshape(np.array(Data), (SH['ntraces'], SH['ns'] + ndummy_samples))
+    Data = np.reshape(np.array(Data), (SH['ntraces'], SH['ns'] + ndummy_samples))
     printverbose("readSegyData : - stripping header dummy data", 2)
     Data = Data[:, ndummy_samples:(SH['ns'] + ndummy_samples)]
     printverbose("readSegyData : - transposing", 2)
-    Data = transpose(Data)
+    Data = np.transpose(Data)
 
     # SOMEONE NEEDS TO IMPLEMENT A NICER WAY DO DEAL WITH DSF=8
     if (SH["DataSampleFormat"] == 8):
-        for i in arange(SH['ntraces']):
-            for j in arange(SH['ns']):
+        for i in np.arange(SH['ntraces']):
+            for j in np.arange(SH['ns']):
                 if Data[i][j] > 128:
                     Data[i][j] = Data[i][j] - 256
 
@@ -696,7 +736,9 @@ def getSegyHeader(filename, endian='>'):  # modified by A Squelch
 
     filesize = len(data)
     ntraces = (filesize - 3600) / (SegyHeader['ns'] * bps + 240)
-    SegyHeader["ntraces"] = ntraces;
+    SegyHeader["ntraces"] = ntraces
+    SegyHeader["time"]=np.arange(SegyHeader['ns']) * SegyHeader['dt'] / 1e+6
+
 
     printverbose('getSegyHeader : succesfully read ' + filename, 1)
 
@@ -906,7 +948,7 @@ def getValue(data, index, ctype='l', endian='>', number=1):
     if (ctype == 'ibm'):
         # ASSUME IBM FLOAT DATA
         Value = list(range(int(number)))
-        for i in arange(number):
+        for i in np.arange(number):
             index_ibm_start = i * 4 + index
             index_ibm_end = index_ibm_start + 4;
             ibm_val = ibm2ieee2(data[index_ibm_start:index_ibm_end])
