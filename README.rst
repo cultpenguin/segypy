@@ -1,4 +1,4 @@
-# SegyPY : A Python module for reading/writing of SEG-Y formatted files
+SegyPY : A Python module for reading/writing of SEG-Y formatted files
 =======================================================================
 Copyright (C) 2005-2018 Thomas Mejer Hansen, thomas.mejer.hansen@gmail.com
 
@@ -11,5 +11,31 @@ Pete Forman
 
 Andrew Squelch. Extensive reformatting from version 0.3.0 to 0.3.1
 
+Example
+_____________
+'''
+import segypy
+
+# Set verbose level
+segypy.verbose=1;
+
+filename='shotgather.sgy';
+
+# Get only SegyHeader
+SH = segypy.getSegyHeader(filename);
+
+
+#  Read Segy File
+[Data,SH,STH]=segypy.readSegy(filename);
+
+# Plot Segy file
+scale=1e-9;
+
+# wiggle plot
+segypy.wiggle(Data,SH,1e-9);
+# image plot
+segypy.image(Data,SH,scale);
+
+'''
 
 
