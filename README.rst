@@ -13,27 +13,39 @@ Andrew Squelch. Extensive reformatting from version 0.3.0 to 0.3.1
 
 Example
 _____________
-.. code:: 
-  import segypy
 
-  # Set verbose level
-  segypy.verbose=1;
-  
-  filename='shotgather.sgy';
-  
-  # Get only SegyHeader
-  SH = segypy.getSegyHeader(filename);
-  
-  
-  #  Read Segy File
-  [Data,SH,STH]=segypy.readSegy(filename);
-  
-  # Plot Segy file
-  scale=1e-9;
-  
-  # wiggle plot
-  segypy.wiggle(Data,SH,1e-9);
-  # image plot
-  segypy.image(Data,SH,scale);
+
+.. image:: https://img.shields.io/pypi/v/segypy.svg?style=flat-square
+    :target: https://pypi.org/project/segypy
+
+.. image:: https://img.shields.io/pypi/pyversions/segypy.svg?style=flat-square
+    :target: https://pypi.org/project/segypy
+
+.. image:: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
+    :target: https://en.wikipedia.org/wiki/MIT_License
+
+
+.. code:: 
+   import segypy
+ 
+   # Set verbose level
+   segypy.verbose=1;
+   
+   filename='shotgather.sgy';
+   
+   # Get only SegyHeader
+   SH = segypy.getSegyHeader(filename);
+   
+   
+   #  Read Segy File
+   [Data,SH,STH]=segypy.readSegy(filename);
+   
+   # Plot Segy file
+   scale=1e-9;
+   
+   # wiggle plot
+   segypy.wiggle(Data,SH,1e-9);
+   # image plot
+   segypy.image(Data,SH,scale);
 
 
