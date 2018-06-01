@@ -385,40 +385,51 @@ def image(Data,  SH={}, maxval=-1):
 
 
 # %%
-def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1):
+def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1, x=[], t=[]):
     """
     wiggle(Data,SH)
     """
     import matplotlib.pylab as plt
     import numpy as np
+    
+    ns = Data.shape[0]
+    ntraces = Data.shape[1]
 
+    if len(x)==0:
+        x=range(0, ntraces)
+
+    if len(t)==0:
+        t=range(0, ns)
+    
+    # overrule time form SegyHeader
     if 'time' in SH:
         t = SH['time']
-        ntraces = SH['ntraces']
-        ns = SH['ns']
-    else:
-        ns=Data.shape[0]
-        t=np.arange(ns)
-        ntraces = Data.shape[1]
+        
 
-
+    dx = x[1]-x[0]    
     if (maxval<=0):
-        Dmax = np.max(Data)
+        Dmax = np.nanmax(Data)
         maxval = -1*maxval*Dmax
+        print('segypy.wiggle: maxval = %g' % maxval)
 
+    #fig, (ax1) = plt.subplots(1, 1)'
+    fig = plt.gcf()
+    ax1 = plt.gca()
+    plt.cla()
+    
     for i in range(0, ntraces, skipt):
         trace = Data[:, i]
         trace[0] = 0
-        trace[ns - 1] = 0
-        plt.plot(i + trace / maxval, t, color='black', linewidth=lwidth)
+        trace[-1] = 0
+        ax1.plot(x[i] + dx * trace / maxval, t, color='black', linewidth=lwidth)
         for a in range(len(trace)):
             if (trace[a] < 0):
                 trace[a] = 0;
         # pylab.fill(i+Data[:,i]/maxval,t,color='k',facecolor='g')
-        plt.fill(i + Data[:, i] / maxval, t, 'k', linewidth=0)
+        ax1.fill(x[i] + dx * Data[:, i] / maxval, t, 'k', linewidth=0)
 
-    plt.grid(True)
-    plt.gca().invert_yaxis()
+    ax1.grid(True)
+    ax1.invert_yaxis()
 
     plt.xlabel('Trace number')
     if 'time' in SH:
@@ -427,7 +438,7 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1):
         plt.ylabel('Sample number')
     if 'filename' in SH:
         plt.title(SH['filename'])
-    plt.axes().set_xlim(-1, ntraces)
+    #ax1.set_xlim(-1, ntraces)
     plt.show()
 
 
