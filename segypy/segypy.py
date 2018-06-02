@@ -391,6 +391,7 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1, x=[], t=[]):
     """
     import matplotlib.pylab as plt
     import numpy as np
+    import copy
     
     ns = Data.shape[0]
     ntraces = Data.shape[1]
@@ -405,20 +406,21 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1, x=[], t=[]):
     if 'time' in SH:
         t = SH['time']
         
-
+        
     dx = x[1]-x[0]    
     if (maxval<=0):
         Dmax = np.nanmax(Data)
         maxval = -1*maxval*Dmax
         print('segypy.wiggle: maxval = %g' % maxval)
-
+        
     #fig, (ax1) = plt.subplots(1, 1)'
     fig = plt.gcf()
     ax1 = plt.gca()
     plt.cla()
     
     for i in range(0, ntraces, skipt):
-        trace = Data[:, i]
+        # use copy to avoid truncating the data
+        trace = copy.copy(Data[:, i])
         trace[0] = 0
         trace[-1] = 0
         ax1.plot(x[i] + dx * trace / maxval, t, color='black', linewidth=lwidth)
@@ -430,6 +432,8 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1, x=[], t=[]):
 
     ax1.grid(True)
     ax1.invert_yaxis()
+
+    
 
     plt.xlabel('Trace number')
     if 'time' in SH:
