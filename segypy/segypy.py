@@ -393,6 +393,8 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', co
     import numpy as np
     import copy
     
+    yl='Sample number'
+    
     ns = Data.shape[0]
     ntraces = Data.shape[1]
 
@@ -401,11 +403,15 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', co
 
     if len(t)==0:
         t=range(0, ns)
+    else:
+        yl='Time  [s]'
+    
     
     # overrule time form SegyHeader
     if 'time' in SH:
         t = SH['time']
-        
+        yl='Time  [s]'
+    
         
     dx = x[1]-x[0]    
     if (maxval<=0):
@@ -429,7 +435,8 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', co
                 if (trace[a] < 0):
                     trace[a] = 0;
                     # pylab.fill(i+Data[:,i]/maxval,t,color='k',facecolor='g')
-            ax1.fill(x[i] + dx * Data[:, i] / maxval, t, 'k', linewidth=0, color=color)
+            #ax1.fill(x[i] + dx * Data[:, i] / maxval, t, 'k', linewidth=0, color=color)
+            ax1.fill(x[i] + dx * trace / maxval, t, 'k', linewidth=0, color=color)
 
     ax1.grid(True)
     ax1.invert_yaxis()
@@ -437,10 +444,7 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', co
     
 
     plt.xlabel('Trace number')
-    if 'time' in SH:
-        plt.ylabel('Time (ms)')
-    else:
-        plt.ylabel('Sample number')
+    plt.ylabel(yl)
     if 'filename' in SH:
         plt.title(SH['filename'])
     #ax1.set_xlim(-1, ntraces)
