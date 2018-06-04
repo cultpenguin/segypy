@@ -385,7 +385,7 @@ def image(Data,  SH={}, maxval=-1):
 
 
 # %%
-def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1, x=[], t=[]):
+def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', color='black'):
     """
     wiggle(Data,SH)
     """
@@ -416,19 +416,20 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.1, x=[], t=[]):
     #fig, (ax1) = plt.subplots(1, 1)'
     fig = plt.gcf()
     ax1 = plt.gca()
-    plt.cla()
     
     for i in range(0, ntraces, skipt):
         # use copy to avoid truncating the data
         trace = copy.copy(Data[:, i])
         trace[0] = 0
         trace[-1] = 0
-        ax1.plot(x[i] + dx * trace / maxval, t, color='black', linewidth=lwidth)
-        for a in range(len(trace)):
-            if (trace[a] < 0):
-                trace[a] = 0;
-        # pylab.fill(i+Data[:,i]/maxval,t,color='k',facecolor='g')
-        ax1.fill(x[i] + dx * Data[:, i] / maxval, t, 'k', linewidth=0)
+        ax1.plot(x[i] + dx * trace / maxval, t, color=color, linewidth=lwidth)
+        
+        if type=='VA':
+            for a in range(len(trace)):
+                if (trace[a] < 0):
+                    trace[a] = 0;
+                    # pylab.fill(i+Data[:,i]/maxval,t,color='k',facecolor='g')
+            ax1.fill(x[i] + dx * Data[:, i] / maxval, t, 'k', linewidth=0, color=color)
 
     ax1.grid(True)
     ax1.invert_yaxis()
