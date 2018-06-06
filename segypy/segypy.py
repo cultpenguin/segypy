@@ -572,11 +572,11 @@ def getAllSegyTraceHeaders(SH, data='none'):
     if (data == 'none'):
         data = open(SH["filename"], 'rb').read()
 
-        for key in STH_def.keys():
-            sth = getSegyTraceHeader(SH, key, data)
-            SegyTraceHeaders[key] = sth
-            txt = "getAllSegyTraceHeaders :  " + key
-            printverbose(txt, 10)
+    for key in STH_def.keys():
+        sth = getSegyTraceHeader(SH, key, data)
+        SegyTraceHeaders[key] = sth
+        txt = "getAllSegyTraceHeaders :  " + key
+        printverbose(txt, 10)
 
     return SegyTraceHeaders
 
