@@ -22,7 +22,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 from distutils.core import setup
 setup(
     name = 'segypy',
-    version = '0.54',
+    version = '0.55',
     description = 'Reading and writing SEGY formatted files',
     author = 'Thomas Mejer Hansen',
     author_email = 'thomas.mejer.hansen@gmail.com',

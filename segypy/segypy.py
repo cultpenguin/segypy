@@ -385,7 +385,7 @@ def image(Data,  SH={}, maxval=-1):
 
 
 # %%
-def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', color='black'):
+def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], gain=1, type='VA', color='black', ntmax=1e+9):
     """
     wiggle(Data,SH)
     """
@@ -397,6 +397,12 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', co
     
     ns = Data.shape[0]
     ntraces = Data.shape[1]
+
+    if ntmax<ntraces:
+        skipt=int(np.floor(ntraces/ntmax))
+        if skipt<1:
+                skipt=1
+
 
     if len(x)==0:
         x=range(0, ntraces)
@@ -428,7 +434,7 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', co
         trace = copy.copy(Data[:, i])
         trace[0] = 0
         trace[-1] = 0
-        ax1.plot(x[i] + dx * trace / maxval, t, color=color, linewidth=lwidth)
+        ax1.plot(x[i] + gain * skipt * dx * trace / maxval, t, color=color, linewidth=lwidth)
         
         if type=='VA':
             for a in range(len(trace)):
@@ -436,7 +442,7 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', co
                     trace[a] = 0;
                     # pylab.fill(i+Data[:,i]/maxval,t,color='k',facecolor='g')
             #ax1.fill(x[i] + dx * Data[:, i] / maxval, t, 'k', linewidth=0, color=color)
-            ax1.fill(x[i] + dx * trace / maxval, t, 'k', linewidth=0, color=color)
+            ax1.fill(x[i] + gain * skipt * dx * trace / (maxval), t, 'k', linewidth=0, color=color)
 
     ax1.grid(True)
     ax1.invert_yaxis()
@@ -448,7 +454,7 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], type='VA', co
     if 'filename' in SH:
         plt.title(SH['filename'])
     #ax1.set_xlim(-1, ntraces)
-    plt.show()
+    #plt.show()
 
 
 # %%
