@@ -446,7 +446,7 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], gain=1, type=
 
     ax1.grid(True)
     ax1.invert_yaxis()
-
+    plt.ylim([np.max(t),np.min(t)])
     
 
     plt.xlabel('Trace number')
