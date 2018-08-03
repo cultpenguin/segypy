@@ -20,12 +20,13 @@ segy.verbose         : Amount of verbose information to the screen
 #
 # segypy : A Python module for reading and writing SEG-Y formatted data
 #
-# (C) Thomas Mejer Hansen, 2005-2016
+# (C) Thomas Mejer Hansen, 2005-2018
 #
 # contributions from
 # - Pete Forman 
 #
 # modified by Andrew Squelch 2007 : sub-version 0.3.1
+
 from __future__ import division
 from __future__ import print_function
 
@@ -35,7 +36,7 @@ import numpy as np
 
 
 # SOME GLOBAL PARAMETERS
-version = '0.3.1'  # modified by A Squelch
+version = '0.57'  # modified by A Squelch
 verbose = 1;
 
 # endian='>' # Big Endian  # modified by A Squelch
@@ -522,7 +523,7 @@ def getSegyTraceHeader(SH, THN='cdp', data='none', endian='>'):  # modified by A
     #    THpos=TraceHeaderPos[THN]
     THpos = STH_def[THN]["pos"]
     THformat = STH_def[THN]["type"]
-    ntraces = SH["ntraces"]
+    ntraces = int(SH["ntraces"])
     thv = np.zeros(ntraces)
     for itrace in range(1, ntraces + 1, 1):
         i = itrace
@@ -877,6 +878,7 @@ def writeSegyStructure(filename, Data, SH, STH, endian='>'):  # modified by A Sq
             format = STH_def[key]["type"]
             value = STH[key][itrace]
             txt = str(pos) + " " + str(format) + "  Writing " + key + "=" + str(value)
+
             printverbose(txt, 40)
             putValue(value, f, pos, format, endian);
 
@@ -900,15 +902,19 @@ def putValue(value, fileid, index, ctype='l', endian='>', number=1):
     if (ctype == 'l') | (ctype == 'long') | (ctype == 'int32'):
         size = l_long
         ctype = 'l'
+        value=int(value)
     elif (ctype == 'L') | (ctype == 'ulong') | (ctype == 'uint32'):
         size = l_ulong
         ctype = 'L'
+        value=int(value)
     elif (ctype == 'h') | (ctype == 'short') | (ctype == 'int16'):
         size = l_short
         ctype = 'h'
+        value=int(value)
     elif (ctype == 'H') | (ctype == 'ushort') | (ctype == 'uint16'):
         size = l_ushort
         ctype = 'H'
+        value=int(value)
     elif (ctype == 'c') | (ctype == 'char'):
         size = l_char
         ctype = 'c'
@@ -925,8 +931,8 @@ def putValue(value, fileid, index, ctype='l', endian='>', number=1):
 
     cformat = endian + ctype * number
 
-    printverbose('putValue : cformat :  ' + cformat + ' ctype=' + ctype, 40)
-
+    #printverbose('putValue : cformat :  "' + cformat + '" ctype="' + ctype + '"'  + '   value="' + value + '"', -1)
+    printverbose('cformat="%s", ctype="%s", value=%f' % (cformat,ctype,value), 40 )
     strVal = struct.pack(cformat, value)
     fileid.seek(index)
     fileid.write(strVal);

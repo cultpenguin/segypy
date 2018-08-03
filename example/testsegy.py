@@ -3,23 +3,24 @@
 
 import segypy
 
-filename='ld0077_file_0126.sgy';
-filename='shotgather.sgy';
+filename='ld0077_file_0126.sgy'
+filename='shotgather.sgy'
 
 # Set verbose level
-segypy.verbose=1;
+segypy.verbose=1
 
-
-SH = segypy.getSegyHeader(filename);
-
+#%% Read only SegyHeader and SegyTraceHeader
+SH = segypy.getSegyHeader(filename)
+STH = segypy.getAllSegyTraceHeaders(SH)
 
 #%% Read Segy File
-[Data,SH,STH]=segypy.readSegy(filename);
+[Data,SH,STH]=segypy.readSegy(filename)
+
 
 #%% Plot Segy filwe
-scale=1e-9;
+scale=1e-9
 # wiggle plot
-segypy.wiggle(Data,SH,1e-9);
+segypy.wiggle(Data,SH,1e-9)
 # image plot
-segypy.image(Data,SH,scale);
+segypy.image(Data,SH,scale)
 
