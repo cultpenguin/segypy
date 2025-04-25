@@ -28,7 +28,6 @@ segy.verbose         : Amount of verbose information to the screen
 # modified by Andrew Squelch 2007 : sub-version 0.3.1
 
 from __future__ import division
-from __future__ import print_function
 
 import struct, sys  # modified by A Squelch
 
@@ -368,10 +367,10 @@ def image(Data,  SH={}, maxval=-1):
         ntraces = Data.shape[1]
     x = np.arange(ntraces)+1
 
-    print(maxval)
+    print(f"segypy.image: maxval = {maxval}")
     plt.pcolor(x, t, Data, vmin=-1*maxval, vmax=maxval)
     plt.colorbar()
-    plt.axis('normal')
+    plt.axis('auto')
     plt.xlabel('Trace number')
     if 'time' in SH:
         plt.ylabel('Time (ms)')
@@ -382,7 +381,6 @@ def image(Data,  SH={}, maxval=-1):
     plt.gca().invert_yaxis()
 
     #plt.grid(True)
-    plt.show()
 
 
 # %%
@@ -443,7 +441,7 @@ def wiggle(Data, SH={}, maxval=-1, skipt=1, lwidth=.5, x=[], t=[], gain=1, type=
                     trace[a] = 0;
                     # pylab.fill(i+Data[:,i]/maxval,t,color='k',facecolor='g')
             #ax1.fill(x[i] + dx * Data[:, i] / maxval, t, 'k', linewidth=0, color=color)
-            ax1.fill(x[i] + gain * skipt * dx * trace / (maxval), t, 'k', linewidth=0, color=color)
+            ax1.fill(x[i] + gain * skipt * dx * trace / (maxval), t, linewidth=0, color=color)
 
     ax1.grid(True)
     ax1.invert_yaxis()
@@ -469,7 +467,7 @@ def getDefaultSegyHeader(ntraces=100, ns=100):
     for key in SH_def.keys():
 
         tmpkey = SH_def[key]
-        if (tmpkey.has_key('def')):
+        if ('def' in tmpkey):
             val = tmpkey['def']
         else:
             val = 0
@@ -492,7 +490,7 @@ def getDefaultSegyTraceHeaders(ntraces=100, ns=100, dt=1000):
     for key in STH_def.keys():
 
         tmpkey = STH_def[key]
-        if (tmpkey.has_key('def')):
+        if ('def' in tmpkey):
             val = tmpkey['def']
         else:
             val = 0
@@ -604,27 +602,22 @@ def readSegy(filename, endian='>'):  # modified by A Squelch
 
     bps = getBytePerSample(SH)
 
-    ntraces = (filesize - 3600) / (SH['ns'] * bps + 240)
-    #    ntraces = 100
+    ntraces = (filesize - 3600) // (SH['ns'] * bps + 240)
 
     printverbose("readSegy : Length of data : " + str(filesize), 2)
 
-    SH["ntraces"] = np.int(ntraces);
+    SH["ntraces"] = int(ntraces);
 
-    # ndummy_samples=240/bps  # modified by A Squelch
-    # printverbose("readSegy : ndummy_samples="+str(ndummy_samples),6)  # modified by A Squelch
     printverbose("readSegy : ntraces=" + str(ntraces) + " nsamples=" + str(SH['ns']), 2)
 
     # GET TRACE
     index = 3600;
-    nd = int((filesize - 3600) / bps)
+    nd = int((filesize - 3600) // bps)
 
     printverbose("filesize=%d" % filesize)
     printverbose("bps=%5d" % bps)
     printverbose("nd=%5d" % nd)
 
-    # modified by A Squelch
-    # this portion replaced by call to new function: readSegyData
     Data, SH, SegyTraceHeaders = readSegyData(data, SH, nd, bps, index, endian)
 
     printverbose("readSegy :  Read segy data", 2)  # modified by A Squelch
@@ -642,7 +635,7 @@ def readSegyData(data, SH, nd, bps, index, endian='>'):  # added by A Squelch
     """
 
     # Calulate number of dummy samples needed to account for Trace Headers
-    ndummy_samples = int(240 / bps)
+    ndummy_samples = int(240 // bps)
     printverbose("readSegyData : ndummy_samples=" + str(ndummy_samples), 6)
 
     # READ ALL SEGY TRACE HEADRES
@@ -762,9 +755,9 @@ def getSegyHeader(filename, endian='>'):  # modified by A Squelch
     bps = getBytePerSample(SegyHeader)
 
     filesize = len(data)
-    ntraces = (filesize - 3600) / (SegyHeader['ns'] * bps + 240)
+    ntraces = (filesize - 3600) // (SegyHeader['ns'] * bps + 240)
     SegyHeader["ntraces"] = ntraces
-    SegyHeader["time"]=np.arange(SegyHeader['ns']) * SegyHeader['dt'] / 1e+6
+    SegyHeader["time"]=np.arange(SegyHeader['ns']) * (SegyHeader['dt'] / 1e+6)
 
 
     printverbose('getSegyHeader : succesfully read ' + filename, 1)
@@ -899,29 +892,29 @@ def putValue(value, fileid, index, ctype='l', endian='>', number=1):
     """
     putValue(data,index,ctype,endian,number)
     """
-    if (ctype == 'l') | (ctype == 'long') | (ctype == 'int32'):
+    if (ctype == 'l') or (ctype == 'long') or (ctype == 'int32'):
         size = l_long
         ctype = 'l'
         value=int(value)
-    elif (ctype == 'L') | (ctype == 'ulong') | (ctype == 'uint32'):
+    elif (ctype == 'L') or (ctype == 'ulong') or (ctype == 'uint32'):
         size = l_ulong
         ctype = 'L'
         value=int(value)
-    elif (ctype == 'h') | (ctype == 'short') | (ctype == 'int16'):
+    elif (ctype == 'h') or (ctype == 'short') or (ctype == 'int16'):
         size = l_short
         ctype = 'h'
         value=int(value)
-    elif (ctype == 'H') | (ctype == 'ushort') | (ctype == 'uint16'):
+    elif (ctype == 'H') or (ctype == 'ushort') or (ctype == 'uint16'):
         size = l_ushort
         ctype = 'H'
         value=int(value)
-    elif (ctype == 'c') | (ctype == 'char'):
+    elif (ctype == 'c') or (ctype == 'char'):
         size = l_char
         ctype = 'c'
-    elif (ctype == 'B') | (ctype == 'uchar'):
+    elif (ctype == 'B') or (ctype == 'uchar'):
         size = l_uchar
         ctype = 'B'
-    elif (ctype == 'f') | (ctype == 'float'):
+    elif (ctype == 'f') or (ctype == 'float'):
         size = l_float
         ctype = 'f'
     elif (ctype == 'ibm'):
@@ -931,8 +924,7 @@ def putValue(value, fileid, index, ctype='l', endian='>', number=1):
 
     cformat = endian + ctype * number
 
-    #printverbose('putValue : cformat :  "' + cformat + '" ctype="' + ctype + '"'  + '   value="' + value + '"', -1)
-    printverbose('cformat="%s", ctype="%s", value=%f' % (cformat,ctype,value), 40 )
+    printverbose(f'cformat="{cformat}", ctype="{ctype}", value={value}', 40 )
     strVal = struct.pack(cformat, value)
     fileid.seek(index)
     fileid.write(strVal);
@@ -945,25 +937,25 @@ def getValue(data, index, ctype='l', endian='>', number=1):
     """
     getValue(data,index,ctype,endian,number)
     """
-    if (ctype == 'l') | (ctype == 'long') | (ctype == 'int32'):
+    if (ctype == 'l') or (ctype == 'long') or (ctype == 'int32'):
         size = l_long
         ctype = 'l'
-    elif (ctype == 'L') | (ctype == 'ulong') | (ctype == 'uint32'):
+    elif (ctype == 'L') or (ctype == 'ulong') or (ctype == 'uint32'):
         size = l_ulong
         ctype = 'L'
-    elif (ctype == 'h') | (ctype == 'short') | (ctype == 'int16'):
+    elif (ctype == 'h') or (ctype == 'short') or (ctype == 'int16'):
         size = l_short
         ctype = 'h'
-    elif (ctype == 'H') | (ctype == 'ushort') | (ctype == 'uint16'):
+    elif (ctype == 'H') or (ctype == 'ushort') or (ctype == 'uint16'):
         size = l_ushort
         ctype = 'H'
-    elif (ctype == 'c') | (ctype == 'char'):
+    elif (ctype == 'c') or (ctype == 'char'):
         size = l_char
         ctype = 'c'
-    elif (ctype == 'B') | (ctype == 'uchar'):
+    elif (ctype == 'B') or (ctype == 'uchar'):
         size = l_uchar
         ctype = 'B'
-    elif (ctype == 'f') | (ctype == 'float'):
+    elif (ctype == 'f') or (ctype == 'float'):
         size = l_float
         ctype = 'f'
     elif (ctype == 'ibm'):
@@ -974,33 +966,30 @@ def getValue(data, index, ctype='l', endian='>', number=1):
 
     index_end = index + size * number
 
-    printverbose("index=%d, number=%d, size=%d, ctype=%s" % (index, number, size, ctype), 8);
-    printverbose("index, index_end = " + str(index) + "," + str(index_end), 9)
+    printverbose(f"index={index}, number={number}, size={size}, ctype={ctype}", 8);
+    printverbose(f"index, index_end = {index},{index_end}", 9)
 
     if (ctype == 'ibm'):
-        # ASSUME IBM FLOAT DATA
-        Value = list(range(int(number)))
-        for i in np.arange(number):
+        Value = [0.0] * int(number)
+        for i in range(int(number)):
             index_ibm_start = i * 4 + index
             index_ibm_end = index_ibm_start + 4;
             ibm_val = ibm2ieee2(data[index_ibm_start:index_ibm_end])
             Value[i] = ibm_val;
-        # this resturn an array as opposed to a tuple    
     else:
-        # ALL OTHER TYPES OF DATA
-        cformat = 'f' * number
         cformat = endian + ctype * number
 
-        printverbose("getValue : cformat : '" + cformat + "'", 11)
+        printverbose(f"getValue : cformat : '{cformat}'", 11)
 
         Value = struct.unpack(cformat, data[index:index_end])
 
     if (ctype == 'B'):
         printverbose('getValue : Ineficient use of 1byte Integer...', -1)
 
-        vtxt = 'getValue : ' + 'start=' + str(index) + ' size=' + str(size) + ' number=' + str(
-            number) + ' Value=' + str(Value) + ' cformat=' + str(cformat)
-        printverbose(vtxt, 20)
+        vtxt = f'getValue : start={index} size={size} number={number} Value='
+        for i in range(number):
+            vtxt = vtxt + str(Value[i]) + ','
+        printverbose(vtxt, 10)
 
     if number == 1:
         return Value[0], index_end
@@ -1010,13 +999,13 @@ def getValue(data, index, ctype='l', endian='>', number=1):
 
 # %%
 def print_version():
-    print('SegyPY version is ', version)
+    print(f'SegyPY version is {version}')
 
 
 # %%
 def printverbose(txt, level=1):
     if level <= verbose:
-        print('SegyPY' + version + ': ', txt)
+        print(f'SegyPY{version}: {txt}')
 
 
 # %%
@@ -1076,7 +1065,7 @@ def getBytePerSample(SH):
         print("  Please check the Endian setting for this file: ", SH["filename"])
         sys.exit()
 
-    printverbose("getBytePerSample :  bps=" + str(bps), 21);
+    printverbose(f"getBytePerSample :  bps={bps}", 21);
 
     return bps
 
