@@ -26,6 +26,8 @@ Andrew Squelch. Extensive reformatting from version 0.3.0 to 0.3.1
 INSTALLATION 
 ____________
 
+.. code:: 
+
     pip install segypy
     
 
