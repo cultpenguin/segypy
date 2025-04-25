@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Build and publish script for the "segypy" package
+# Usage: ./pypi_build_script
+
+set -e  # Exit on error
+
+MODULE_NAME="segymat"
+VERSION=$(grep "version" pyproject.toml | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/')
+
+echo "=== Building $MODULE_NAME v$VERSION ==="
+echo "Note: This package includes platform-specific dependencies"
+echo "      Windows users will automatically get 'ga-aem-forward-win'"
+
+# Clean up old builds
+echo "Cleaning up old build artifacts..."
+rm -rf dist/ build/ *.egg-info/
+
+# Make sure you have the required tools
+echo "Updating build tools..."
+pip install --upgrade pip
+pip install --upgrade build setuptools wheel twine
+
+# Build distribution packages using build module (PEP 517)
+echo "Building distribution packages..."
+python -m build
+
+echo "=== Build complete ==="
+echo "Distribution files created:"
+ls -l dist/
+
+# Upload to TestPyPI first
+echo -e "\n=== TestPyPI Upload ==="
+read -p "Upload to TestPyPI for verification? [y/N] " test_upload
+if [[ $test_upload =~ ^[Yy]$ ]]; then
+    python -m twine upload --repository testpypi dist/*
+    echo -e "\nTestPyPI upload complete!"
+    echo "You can install and test with:"
+    echo "pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ $MODULE_NAME==$VERSION"
+    echo "This uses TestPyPI for $MODULE_NAME but regular PyPI for dependencies."
+fi
+
+# Upload to PyPI when ready
+echo -e "\n=== PyPI Upload ==="
+read -p "Upload to PyPI for production release? [y/N] " prod_upload
+if [[ $prod_upload =~ ^[Yy]$ ]]; then
+    python -m twine upload dist/*
+    echo -e "\nPyPI upload complete!"
+    echo "Your package is now available via:"
+    echo "pip install $MODULE_NAME"
+else
+    echo -e "\nSkipped PyPI upload. When ready for the real release, run:"
+    echo "python -m twine upload dist/*"
+fi
+

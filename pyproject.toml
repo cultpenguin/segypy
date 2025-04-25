@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "segypy"
+version = "0.58" # Consider updating the version number after changes
+description = "Reading and writing SEGY formatted files"
+readme = "README.rst"
+authors = [
+    { name = "Thomas Mejer Hansen", email = "thomas.mejer.hansen@gmail.com" },
+]
+license = { file = "LICENSE.txt" }
+keywords = ["segy", "reading", "writing"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "numpy>=1.19.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/cultpenguin/segypy"
+Download = "https://github.com/cultpenguin/segypy/archive/master.zip"
+
+[tool.setuptools.packages.find]
+exclude = ["contrib*", "docs*", "tests*", "example*"]
