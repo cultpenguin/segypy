@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "segypy"
-version = "0.59" # Consider updating the version number after changes
+version = "0.60" # Consider updating the version number after changes
 description = "Reading and writing SEGY formatted files"
 readme = "README.rst"
 authors = [
